@@ -2,6 +2,7 @@
     "name": "haykalmedia/count-everything",
     "type": "wordpress-plugin",
     "description": "Async counting of visits to each post",
+    "keywords": ["wordpress", "plugin", "count"],
     "license": "MIT",
     "authors": [
         {
