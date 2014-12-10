@@ -1,4 +1,5 @@
-count-everything
+Count Everything
 ================
 
 WordPress plugin to async counting of visits to each post.
+
