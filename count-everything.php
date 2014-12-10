@@ -33,6 +33,8 @@ class Count_Everything
         add_action('admin_menu', [ &$this, 'dashboard_menu' ]);
         // Cron to update tables
         add_action('count_everything_update_totals', [ &$this, 'update_total' ]);
+        // Allow ordering by popular posts
+        add_filter('posts_clauses', [&$this, 'orderByPopularPosts'], 10, 2);
     }
 
     /**
@@ -234,6 +236,62 @@ class Count_Everything
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * Allow ordering post by most popular
+     * by adding a query var `popular_posts`/`popular_posts_total`
+     * or set order variable to be popular_posts
+     *
+     * By default the query order posts by most popular posts in the year (currently hard-coded 2014)
+     * To get most popular posts in the last week, add popular_posts query var and assign `week` as its value
+     *
+     * @param  array  $clauses
+     * @param  object $query
+     * @return array
+     */
+    public function orderByPopularPosts($clauses, $query)
+    {
+        // Don't apply this to dashboard or single!
+        if (is_admin() or $query->is_single()) {
+            return $clauses;
+        }
+
+        // If specific orderby exists then don't apply popular posts
+        if ($query->get('orderby') && strpos($query->get('orderby'), 'popular_posts') === false) {
+            return $clauses;
+        }
+
+        if (! $query->get('popular_posts') && strpos($query->get('orderby'), 'popular_posts') === false) {
+            return $clauses;
+        }
+
+        global $wpdb;
+        // Total visits
+        if ($query->get('orderby') == 'popular_posts_total') {
+            $counts_table = $wpdb->prefix . static::$total_table;
+            $clauses['fields']  .= ', IFNULL(counts.total, 0) as total';
+            $clauses['orderby']  = "total DESC, {$wpdb->posts}.post_title";
+            $clauses['join']    .= " LEFT JOIN {$counts_table} counts ON {$wpdb->posts}.ID = counts.post_id";
+            $clauses['groupby'] .= $clauses['groupby'] !== '' ? ", {$wpdb->posts}.ID" : "{$wpdb->posts}.ID";
+
+        } elseif ($query->get('orderby') == 'popular_posts' or ! $query->get('popular_posts')) {
+            $counts_table = $wpdb->prefix . static::$base_table;
+            // Partial visits
+            $clauses['fields']  .= ', IFNULL(SUM(counts.total), 0) as total';
+            $clauses['orderby']  = "total DESC, {$wpdb->posts}.post_title";
+            $clauses['join']    .= " LEFT JOIN {$counts_table} counts ON {$wpdb->posts}.ID = counts.post_id";
+            $clauses['groupby'] .= $clauses['groupby'] !== '' ? ", {$wpdb->posts}.ID" : "{$wpdb->posts}.ID";
+            if ($query->get('popular_posts') == 'week') {
+                // Get popular posts in the last week
+                $clauses['where'] .= ' AND day BETWEEN DATE(DATE_SUB(NOW() , INTERVAL 1 WEEK)) AND DATE (NOW())';
+            } else {
+                // Default get popular posts by year
+                $clauses['where'] .= ' AND (YEAR(day) = '. date('Y') .' OR day IS NULL)';
+            }
+        }
+
+        return $clauses;
     }
 }
 
