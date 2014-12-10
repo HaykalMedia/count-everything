@@ -1,0 +1,16 @@
+{
+    "name": "haykalmedia/count-everything",
+    "type": "wordpress-plugin",
+    "description": "Async counting of visits to each post",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ammar Alakkad",
+            "email": "am.alakkad@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
