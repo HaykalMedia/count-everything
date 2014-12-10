@@ -67,7 +67,7 @@ class Count_Everything
 
     public function dashboard_menu()
     {
-        add_options_page('Counts options', 'Counts options', 'manage_options', 'count-everything/options-page.php');
+        add_options_page('Count Everything Options', 'Count Everything', 'manage_options', 'count-everything', [&$this, 'menuContent']);
     }
 
     /**
@@ -205,6 +205,35 @@ class Count_Everything
         $sql        = "SELECT SUM(total) FROM {$base_table} WHERE post_id IN ({$post_id}) AND day BETWEEN '{$from}' AND '{$to}'";
 
         return (int) $wpdb->get_var($sql);
+    }
+
+    public static function menuContent()
+    {
+        $options = get_option( Count_Everything::$options_name );
+        if(count($_POST)) {
+            $options['count_users'] = isset($_POST['count_users']);
+            update_option( Count_Everything::$options_name, $options );
+        }
+        ?>
+        <div class="wrap">
+            <h2>Count Everything options</h2>
+            <br>
+            <form action="" method="post" accept-charset="utf-8">
+                <table class="form-table" style="width: 50%;">
+                    <tr>
+                        <td>
+                            <label for="count_users">احتساب زيارات المحررين؟</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="count_users" name="count_users" value="1" <?=($options['count_users'] ? " checked" : "")?>>
+                        </td>
+                    </tr>
+                </table>
+
+                <input type="submit" class="button button-primary" value="Save">
+            </form>
+        </div>
+        <?php
     }
 }
 
