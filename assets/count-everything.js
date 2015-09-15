@@ -1,12 +1,7 @@
 var request = new XMLHttpRequest(),
-countAction = (typeof(countEverything) !== "undefined" ? countEverything.countAction : aliqtisadi.countAction),
-postID = (typeof(countEverything) !== "undefined" ? countEverything.postID : aliqtisadi.postID),
-ajaxurl = (typeof(countEverything) !== "undefined" ? countEverything.ajaxurl : aliqtisadi.ajaxurl);
-
-countAction = countAction || aliqtisadi.countAction;
-postID = postID || aliqtisadi.postID;
-ajaxurl = ajaxurl || aliqtisadi.ajaxurl;
-
+    countAction = (typeof(countEverything) !== "undefined" ? countEverything.countAction : aliqtisadi.countAction),
+    postID = (typeof(countEverything) !== "undefined" ? countEverything.postID : aliqtisadi.postID),
+    ajaxurl = (typeof(countEverything) !== "undefined" ? countEverything.ajaxurl : aliqtisadi.ajaxurl);
 
 var data = "action=" + countAction +
     "&post_id=" + postID;
